@@ -1,33 +1,51 @@
 {
-  "name": "Karakeep Codespace",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:0-22",  
-  "features": {
-    // alternatively, enable Docker CLI / dind if you need to run Meilisearch in a container from inside Codespaces
-    // "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
-  "dockerComposeFile": ["docker-compose.yml"],
-  "service": "meilisearch",
-  "runServices": ["meilisearch"],
-  "shutdownAction": "stopCompose",
-  "forwardPorts": [3000, 7700],
-  "postCreateCommand": "cp .env.sample .env && corepack enable && pnpm install",
-  "remoteEnv": {
-    // points all apps at a shared on-container data dir
-    "DATA_DIR": "${containerWorkspaceFolder}/data"
-  },
+  "name": "Karakeep Dev Environment",
+  // Use Docker Compose to orchestrate the main dev container and Meilisearch
+  "dockerComposeFile": "docker-compose.devcontainer.yml",
+
+  // The service within the docker-compose.yml file that houses the dev environment
+  "service": "app",
+
+  // The workspace folder inside the container where the source code will be mounted
   "workspaceFolder": "/workspace",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  // Forward necessary ports
+  "forwardPorts": [
+    3000, // Default port for the web app
+    7700  // Default port for Meilisearch
+  ],
+
+  // Run commands after the container is created but before VS Code attaches
+  "postCreateCommand": "bash ./.devcontainer/post-create.sh",
+
+  // Configure VS Code specific settings and extensions
   "customizations": {
     "vscode": {
-      "extensions": [
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "mhutchie.git-graph",
-        "ms-vsliveshare.vsliveshare"
-      ],
       "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-      }
+        // Example: Use bash as default integrated terminal shell
+        "terminal.integrated.defaultProfile.linux": "bash",
+        // Enable ESlint validation for relevant files
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ]
+      },
+      // Recommend useful extensions
+      "extensions": [
+        "dbaeumer.vscode-eslint",     // ESLint integration
+        "esbenp.prettier-vscode",     // Prettier integration
+        "prisma.prisma",              // Prisma ORM tools (likely used with db:migrate)
+        "ms-vscode.vscode-node-azure-pack", // Node.js tools pack
+        "GitHub.codespaces",          // Core Codespaces extension (usually pre-installed)
+        "humao.rest-client",          // Useful for testing APIs
+        "Meilisearch.meilisearch-vscode" // Meilisearch helper (optional)
+        // Add "expo.vscode-expo-tools" if mobile dev in Codespaces is intended (might need more setup)
+      ]
     }
-  }
+  },
+
+  // Use the 'node' user created by the base image for better permissions
+  "remoteUser": "node"
 }
