@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Service for the main development environment
+  app:
+    # Use the official Microsoft Node.js devcontainer image, specifying Node 22
+    image: mcr.microsoft.com/devcontainers/javascript-node:0-22
+    
+    # Mount the repository root into the /workspace folder in the container
+    volumes:
+      - ..:/workspace:cached # '..' refers to the parent directory (repo root)
+    
+    # Keep the container running indefinitely
+    command: sleep infinity
+
+    # Define environment variables needed *during build/runtime* of the dev container itself
+    # The application's .env variables will be handled separately.
+    environment:
+      # Tell Meilisearch client where to connect (using the service name)
+      MEILI_ADDR: http://meilisearch:7700 
+      # Set DATA_DIR default for Codespaces - adjust if needed
+      DATA_DIR: /workspace/data 
+
+    # Make the app service depend on meilisearch starting first
+    depends_on:
+      - meilisearch
+
+    # Network configuration to allow communication between services
+    networks:
+      - devcontainer_network
+
+  # Service for Meilisearch dependency
+  meilisearch:
+    image: getmeili/meilisearch:v1.11.1
+    ports:
+      - "7700:7700" # Expose Meilisearch port
+    volumes:
+      - meilisearch_data:/meili_data # Persist Meilisearch data
+    environment:
+      # Running in development mode, no master key
+      - MEILI_ENV=development 
+    networks:
+      - devcontainer_network
+
+# Define the network
+networks:
+  devcontainer_network:
+
+# Define the named volume for Meilisearch data persistence
+volumes:
+  meilisearch_data:
