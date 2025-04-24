@@ -1,0 +1,33 @@
+{
+  "name": "Karakeep Codespace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:0-22",  
+  "features": {
+    // alternatively, enable Docker CLI / dind if you need to run Meilisearch in a container from inside Codespaces
+    // "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "meilisearch",
+  "runServices": ["meilisearch"],
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [3000, 7700],
+  "postCreateCommand": "cp .env.sample .env && corepack enable && pnpm install",
+  "remoteEnv": {
+    // points all apps at a shared on-container data dir
+    "DATA_DIR": "${containerWorkspaceFolder}/data"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "mhutchie.git-graph",
+        "ms-vsliveshare.vsliveshare"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  }
+}
